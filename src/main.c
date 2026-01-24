@@ -1,3 +1,20 @@
+/*
+ * 6502 Emulator
+ * Copyright (C) 2026 Deltalay
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 // 8bit;
@@ -115,6 +132,14 @@ void cpu_reset(CPU *cpu)
 #define DEC_ABSOLUTE_X 0xDE
 #define DEX 0xCA
 #define DEY 0x88
+#define ADC_IMMEDIATE 0x69
+#define ADC_ZEROPAGE 0x65
+#define ADC_ZEROPAGE_X 0x75
+#define ADC_ABSOLUTE 0x6D
+#define ADC_ABSOLUTE_X 0x7D
+#define ADC_ABSOLUTE_Y 0x79
+#define ADC_INDIRECT_X 0x61
+#define ADC_INDIRECT_Y 0x71 
 void setZN(CPU *cpu, BYTE val)
 {
   cpu->P.Z = (val == 0);
