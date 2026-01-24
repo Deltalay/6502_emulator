@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,--dependency-file=CMakeFiles/emulator.dir/link.d CMakeFiles/emulator.dir/src/main.c.o -o emulator
