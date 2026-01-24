@@ -1,3 +1,0 @@
-/home/delta/6502_emulator/bin/CMakeFiles/emulator.dir
-/home/delta/6502_emulator/bin/CMakeFiles/edit_cache.dir
-/home/delta/6502_emulator/bin/CMakeFiles/rebuild_cache.dir
