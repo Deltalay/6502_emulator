@@ -65,7 +65,7 @@ void cpu_reset(CPU *cpu)
 }
 // TODO: Implement more op_code.
 // Also we do not care about cycle right now.
-// TODO: AND, ASL, BIT
+// TODO: ASL, BIT, EOR, ORA
 #define LDA_IMMEDIATE 0xA9
 #define LDA_ZEROPAGE 0xA5
 #define LDA_ZEROPAGE_X 0xB5
@@ -141,11 +141,12 @@ void cpu_reset(CPU *cpu)
 #define ADC_INDIRECT_X 0x61
 #define ADC_INDIRECT_Y 0x71
 #define AND_IMMEDIATE 0x29
-#define AND_ZEROPAGE 0x25 
-#define AND_ZEROPAGE_X 0x35 
+#define AND_ZEROPAGE 0x25
+#define AND_ZEROPAGE_X 0x35
 #define AND_ABSOLUTE 0x2D
 #define AND_ABSOLUTE_X 0x3D
-#define AND_INDIRECT_X 0x21 
+#define AND_ABSOLUTE_Y 0x39
+#define AND_INDIRECT_X 0x21
 #define AND_INDIRECT_Y 0x31
 void setZN(CPU *cpu, BYTE val)
 {
@@ -860,12 +861,12 @@ int main()
          cpu.PC, cpu.S, cpu.P.U, cpu.X);
   mem_write(0x8000, LDA_IMMEDIATE); mem_write(0x8001, 0x10);
   mem_write(0x8002, LDA_ZEROPAGE);  mem_write(0x8003, 0x20);
-  mem_write(0x8004, LDA_ZEROPAGE_X); mem_write(0x8005, 0x1D); // X will be 3
+  mem_write(0x8004, LDA_ZEROPAGE_X); mem_write(0x8005, 0x1D);
   mem_write(0x8006, LDA_ABSOLUTE); mem_write(0x8007, 0x00); mem_write(0x8008, 0x90);
   mem_write(0x8009, LDA_ABSOLUTE_X); mem_write(0x800A, 0x01); mem_write(0x800B, 0x90);
   mem_write(0x800C, LDA_ABSOLUTE_Y); mem_write(0x800D, 0x02); mem_write(0x800E, 0x90);
-  mem_write(0x800F, LDA_INDIRECT_X); mem_write(0x8010, 0x30); // will add X
-  mem_write(0x8011, LDA_INDIRECT_Y); mem_write(0x8012, 0x31); // will add Y
+  mem_write(0x800F, LDA_INDIRECT_X); mem_write(0x8010, 0x30);
+  mem_write(0x8011, LDA_INDIRECT_Y); mem_write(0x8012, 0x31);
 
   // LDX tests
   mem_write(0x8013, LDX_IMMEDIATE); mem_write(0x8014, 0x03);
@@ -930,18 +931,28 @@ int main()
   mem_write(0x8075, ADC_INDIRECT_X); mem_write(0x8076, 0x30);
   mem_write(0x8077, ADC_INDIRECT_Y); mem_write(0x8078, 0x31);
 
+  // AND tests
+  mem_write(0x8079, AND_IMMEDIATE); mem_write(0x807A, 0x0F);
+  mem_write(0x807B, AND_ZEROPAGE); mem_write(0x807C, 0x20);
+  mem_write(0x807D, AND_ZEROPAGE_X); mem_write(0x807E, 0x1D);
+  mem_write(0x807F, AND_ABSOLUTE); mem_write(0x8080, 0x00); mem_write(0x8081, 0x90);
+  mem_write(0x8082, AND_ABSOLUTE_X); mem_write(0x8083, 0x01); mem_write(0x8084, 0x90);
+  mem_write(0x8085, AND_ABSOLUTE_Y); mem_write(0x8086, 0x02); mem_write(0x8087, 0x90);
+  mem_write(0x8088, AND_INDIRECT_X); mem_write(0x8089, 0x30);
+  mem_write(0x808A, AND_INDIRECT_Y); mem_write(0x808B, 0x31);
+
   // Flags setup/cleanup
-  mem_write(0x8079, CLC);
-  mem_write(0x807A, SEC);
-  mem_write(0x807B, SED);
-  mem_write(0x807C, SEI);
+  mem_write(0x808C, CLC);
+  mem_write(0x808D, SEC);
+  mem_write(0x808E, SED);
+  mem_write(0x808F, SEI);
 
   // NOP/BRK to stop
-  mem_write(0x807D, NOP);
-  mem_write(0x807E, NOP);
-  mem_write(0x807F, BRK);
+  mem_write(0x8090, NOP);
+  mem_write(0x8091, NOP);
+  mem_write(0x8092, BRK);
 
-  // Initialize some zero-page and absolute memory for LDA/STA/INC/ADC tests
+  // Initialize some zero-page and absolute memory for LDA/STA/INC/ADC/AND tests
   mem_write(0x0020, 0xAA);
   mem_write(0x0021, 0xBB);
   mem_write(0x0022, 0xCC);
