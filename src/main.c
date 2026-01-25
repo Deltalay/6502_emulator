@@ -146,12 +146,6 @@ void setZN(CPU *cpu, BYTE val)
   cpu->P.N = (val & 0x80) != 0;
   cpu->P.U = 1;
 }
-void setZVN(CPU *cpu, BYTE val )
-{
-  cpu->P.Z = (cpu->A == 0);
-  cpu->P.N = (val & 0x80) != 0;
-  cpu->P.U = 1;
-}
 void execute(CPU *cpu)
 {
   BYTE op_code = mem_read(cpu->PC++);
@@ -568,6 +562,25 @@ void execute(CPU *cpu)
     mem_write(addr, val);
     setZN(cpu, val);
     break;
+  }
+  case ADC_IMMEDIATE:
+  {
+      // We can just add the carry flag. Even if it does not set.
+      // Because if set, C = 1, if not, then C = 0
+      BYTE to_add = mem_read(cpu->PC++);
+      WORD result = cpu->A + cpu->C + to_add;
+      cpu->C = (result & 0x100) != 0;
+      // Overflow (V) is set when (+) + (+) = - or (-) + (-) = +
+      // We detect it by looking at the sign bit (bit 7).
+      // A ^ to_add tells if the signs of A and operand differ (1 = different, 0 = same)
+      // Negate it (~) now 1 indicates the operands have the same sign
+      // A ^ result tells if the result’s sign differs from A (1 = sign changed)
+      // AND both conditions will give 1 if same-sign operands produced a sign-flipped result
+      // & 0x80 to isolate the sign bit for the V flag
+      cpu->V = (~(cpu->A ^ to_add) & (cpu->A ^ (BYTE)(result) )) & 0x80;
+      cpu->A = (BYTE)(result) & 0xFF;
+      setZN(cpu, cpu->A);
+      break;
   }
   case DEX:
   {
