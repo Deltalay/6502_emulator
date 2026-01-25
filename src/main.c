@@ -148,6 +148,22 @@ void cpu_reset(CPU *cpu)
 #define AND_ABSOLUTE_Y 0x39
 #define AND_INDIRECT_X 0x21
 #define AND_INDIRECT_Y 0x31
+#define ORA_IMMEDIATE 0x09
+#define ORA_ZEROPAGE 0x05 
+#define ORA_ZEROPAGE_X 0x15 
+#define ORA_ABSOLUTE 0x0D 
+#define ORA_ABSOLUTE_X 0x1D 
+#define ORA_ABSOLUTE_Y 0x19 
+#define ORA_INDIRECT_X 0x01 
+#define ORA_INDIRECT_Y 0x11
+#define EOR_IMMEDIATE 0x49 
+#define EOR_ZEROPAGE 0x45 
+#define EOR_ZEROPAGE_X 0x55  
+#define EOR_ABSOLUTE 0x4D 
+#define EOR_ABSOLUTE_X 0x5D 
+#define EOR_ABSOLUTE_Y 0x59 
+#define EOR_INDIRECT_X 0x41 
+#define EOR_INDIRECT_Y 0x51 
 void setZN(CPU *cpu, BYTE val)
 {
   cpu->P.Z = (val == 0);
@@ -750,6 +766,148 @@ void execute(CPU *cpu)
     BYTE second_addr = mem_read((addr_ptr + 0x01) & 0xFF);
     WORD addr = (second_addr << 8) | first_addr;
     cpu->A &= mem_read((addr + cpu->Y) & 0xFFFF);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case ORA_IMMEDIATE:
+  {
+    cpu->A |= mem_read(cpu->PC++);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case ORA_ZEROPAGE:
+  {
+    BYTE addr = mem_read(cpu->PC++);
+    cpu->A |= mem_read(addr);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case ORA_ZEROPAGE_X:
+  {
+    BYTE base = mem_read(cpu->PC++);
+    BYTE addr = (BYTE)(base + cpu->X) & 0xFF;
+    cpu->A |= mem_read(addr);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case ORA_ABSOLUTE:
+  {
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = (second_addr << 8) | first_addr;
+    cpu->A |= mem_read(addr);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case ORA_ABSOLUTE_X:
+  {
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = (second_addr << 8) | first_addr;
+    addr = (addr + (WORD)cpu->X) & 0xFFFF;
+    cpu->A |= mem_read(addr);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case ORA_ABSOLUTE_Y:
+  {
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = (second_addr << 8) | first_addr;
+    addr = (addr + (WORD)cpu->Y) & 0xFFFF;
+    cpu->A |= mem_read(addr);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case ORA_INDIRECT_X:
+  {
+    BYTE ptr = mem_read(cpu->PC++);
+    BYTE addr_ptr = (BYTE)(ptr + cpu->X);
+    BYTE first_addr = mem_read(addr_ptr);
+    BYTE second_addr = mem_read((addr_ptr + 0x01) & 0xFF);
+    WORD addr = (second_addr << 8) | first_addr;
+    cpu->A |= mem_read(addr);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case ORA_INDIRECT_Y:
+  {
+    BYTE addr_ptr = mem_read(cpu->PC++);
+    BYTE first_addr = mem_read(addr_ptr);
+    BYTE second_addr = mem_read((addr_ptr + 0x01) & 0xFF);
+    WORD addr = (second_addr << 8) | first_addr;
+    cpu->A |= mem_read((addr + cpu->Y) & 0xFFFF);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case EOR_IMMEDIATE:
+  {
+    cpu->A ^= mem_read(cpu->PC++);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case EOR_ZEROPAGE:
+  {
+    BYTE addr = mem_read(cpu->PC++);
+    cpu->A ^= mem_read(addr);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case EOR_ZEROPAGE_X:
+  {
+    BYTE base = mem_read(cpu->PC++);
+    BYTE addr = (BYTE)(base + cpu->X) & 0xFF;
+    cpu->A ^= mem_read(addr);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case EOR_ABSOLUTE:
+  {
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = (second_addr << 8) | first_addr;
+    cpu->A ^= mem_read(addr);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case EOR_ABSOLUTE_X:
+  {
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = (second_addr << 8) | first_addr;
+    addr = (addr + (WORD)cpu->X) & 0xFFFF;
+    cpu->A ^= mem_read(addr);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case EOR_ABSOLUTE_Y:
+  {
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = (second_addr << 8) | first_addr;
+    addr = (addr + (WORD)cpu->Y) & 0xFFFF;
+    cpu->A ^= mem_read(addr);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case EOR_INDIRECT_X:
+  {
+    BYTE ptr = mem_read(cpu->PC++);
+    BYTE addr_ptr = (BYTE)(ptr + cpu->X);
+    BYTE first_addr = mem_read(addr_ptr);
+    BYTE second_addr = mem_read((addr_ptr + 0x01) & 0xFF);
+    WORD addr = (second_addr << 8) | first_addr;
+    cpu->A ^= mem_read(addr);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case EOR_INDIRECT_Y:
+  {
+    BYTE addr_ptr = mem_read(cpu->PC++);
+    BYTE first_addr = mem_read(addr_ptr);
+    BYTE second_addr = mem_read((addr_ptr + 0x01) & 0xFF);
+    WORD addr = (second_addr << 8) | first_addr;
+    cpu->A ^= mem_read((addr + cpu->Y) & 0xFFFF);
     setZN(cpu, cpu->A);
     break;
   }
