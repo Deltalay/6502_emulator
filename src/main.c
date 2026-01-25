@@ -139,29 +139,17 @@ void cpu_reset(CPU *cpu)
 #define ADC_ABSOLUTE_X 0x7D
 #define ADC_ABSOLUTE_Y 0x79
 #define ADC_INDIRECT_X 0x61
-#define ADC_INDIRECT_Y 0x71 
+#define ADC_INDIRECT_Y 0x71
 void setZN(CPU *cpu, BYTE val)
 {
   cpu->P.Z = (val == 0);
   cpu->P.N = (val & 0x80) != 0;
   cpu->P.U = 1;
 }
-void LDA(CPU *cpu)
+void setZVN(CPU *cpu, BYTE val )
 {
   cpu->P.Z = (cpu->A == 0);
-  cpu->P.N = (cpu->A & 0x80) != 0;
-  cpu->P.U = 1;
-}
-void LDY(CPU *cpu)
-{
-  cpu->P.Z = (cpu->Y == 0);
-  cpu->P.N = (cpu->Y & 0x80) != 0;
-  cpu->P.U = 1;
-}
-void LDX(CPU *cpu)
-{
-  cpu->P.Z = (cpu->X == 0);
-  cpu->P.N = (cpu->X & 0x80) != 0;
+  cpu->P.N = (val & 0x80) != 0;
   cpu->P.U = 1;
 }
 void execute(CPU *cpu)
@@ -172,14 +160,14 @@ void execute(CPU *cpu)
   case LDA_IMMEDIATE:
   {
     cpu->A = mem_read(cpu->PC++);
-    LDA(cpu);
+    setZN(cpu, cpu->A);
     break;
   }
   case LDA_ZEROPAGE:
   {
     BYTE addr = mem_read(cpu->PC++);
     cpu->A = mem_read(addr);
-    LDA(cpu);
+    setZN(cpu, cpu->A);
     break;
   }
   case LDA_ZEROPAGE_X:
@@ -187,7 +175,7 @@ void execute(CPU *cpu)
     BYTE base = mem_read(cpu->PC++);
     BYTE addr = (BYTE)(base + cpu->X) & 0xFF;
     cpu->A = mem_read(addr);
-    LDA(cpu);
+    setZN(cpu, cpu->A);
     break;
   }
   case LDA_ABSOLUTE:
@@ -196,7 +184,7 @@ void execute(CPU *cpu)
     BYTE second_addr = mem_read(cpu->PC++);
     WORD addr = (second_addr << 8) | first_addr;
     cpu->A = mem_read(addr);
-    LDA(cpu);
+    setZN(cpu, cpu->A);
     break;
   }
   case LDA_ABSOLUTE_X:
@@ -206,7 +194,7 @@ void execute(CPU *cpu)
     WORD addr = (second_addr << 8) | first_addr;
     addr = (addr + (WORD)cpu->X) & 0xFFFF;
     cpu->A = mem_read(addr);
-    LDA(cpu);
+    setZN(cpu, cpu->A);
     break;
   }
   case LDA_ABSOLUTE_Y:
@@ -216,7 +204,7 @@ void execute(CPU *cpu)
     WORD addr = (second_addr << 8) | first_addr;
     addr = (addr + (WORD)cpu->Y) & 0xFFFF;
     cpu->A = mem_read(addr);
-    LDA(cpu);
+    setZN(cpu, cpu->A);
     break;
   }
   case LDA_INDIRECT_X:
@@ -227,7 +215,7 @@ void execute(CPU *cpu)
     BYTE second_addr = mem_read((addr_ptr + 0x01) & 0xFF);
     WORD addr = (second_addr << 8) | first_addr;
     cpu->A = mem_read(addr);
-    LDA(cpu);
+    setZN(cpu, cpu->A);
     break;
   }
   case LDA_INDIRECT_Y:
@@ -237,20 +225,20 @@ void execute(CPU *cpu)
     BYTE second_addr = mem_read((addr_ptr + 0x01) & 0xFF);
     WORD addr = (second_addr << 8) | first_addr;
     cpu->A = mem_read((addr + cpu->Y) & 0xFFFF);
-    LDA(cpu);
+    setZN(cpu, cpu->A);
     break;
   }
   case LDX_IMMEDIATE:
   {
     cpu->X = mem_read(cpu->PC++);
-    LDX(cpu);
+    setZN(cpu, cpu->X);
     break;
   }
   case LDX_ZEROPAGE:
   {
     BYTE addr = mem_read(cpu->PC++);
     cpu->X = mem_read(addr);
-    LDX(cpu);
+    setZN(cpu, cpu->X);
     break;
   }
   case LDX_ZEROPAGE_Y:
@@ -258,7 +246,7 @@ void execute(CPU *cpu)
     BYTE base = mem_read(cpu->PC++);
     BYTE addr = (BYTE)(base + cpu->Y) & 0xFF;
     cpu->X = mem_read(addr);
-    LDX(cpu);
+    setZN(cpu, cpu->X);
     break;
   }
   case LDX_ABSOLUTE:
@@ -267,7 +255,7 @@ void execute(CPU *cpu)
     BYTE second_addr = mem_read(cpu->PC++);
     WORD addr = (second_addr << 8) | first_addr;
     cpu->X = mem_read(addr);
-    LDX(cpu);
+    setZN(cpu, cpu->X);
     break;
   }
   case LDX_ABSOLUTE_Y:
@@ -276,28 +264,28 @@ void execute(CPU *cpu)
     BYTE second_addr = mem_read(cpu->PC++);
     WORD addr = (((second_addr << 8) | first_addr) + cpu->Y) & 0xFFFF;
     cpu->X = mem_read(addr);
-    LDX(cpu);
+    setZN(cpu, cpu->X);
     break;
   }
   case LDY_IMMEDIATE:
   {
     cpu->Y = mem_read(cpu->PC++);
-    LDY(cpu);
+    setZN(cpu, cpu->Y);
     break;
   }
   case LDY_ZEROPAGE:
   {
     BYTE addr = mem_read(cpu->PC++);
     cpu->Y = mem_read(addr);
-    LDY(cpu);
+    setZN(cpu, cpu->Y);
     break;
   }
   case LDY_ZEROPAGE_X:
   {
     BYTE base = mem_read(cpu->PC++);
-    BYTE addr = (BYTE)(base + cpu->Y) & 0xFF;
+    BYTE addr = (BYTE)(base + cpu->X) & 0xFF;
     cpu->Y = mem_read(addr);
-    LDY(cpu);
+    setZN(cpu, cpu->Y);
     break;
   }
   case LDY_ABSOLUTE:
@@ -306,7 +294,7 @@ void execute(CPU *cpu)
     BYTE second_addr = mem_read(cpu->PC++);
     WORD addr = (second_addr << 8) | first_addr;
     cpu->Y = mem_read(addr);
-    LDY(cpu);
+    setZN(cpu, cpu->Y);
     break;
   }
   case LDY_ABSOLUTE_X:
@@ -315,7 +303,7 @@ void execute(CPU *cpu)
     BYTE second_addr = mem_read(cpu->PC++);
     WORD addr = (((second_addr << 8) | first_addr) + cpu->X) & 0xFFFF;
     cpu->Y = mem_read(addr);
-    LDY(cpu);
+    setZN(cpu, cpu->Y);
     break;
   }
   case STA_ZEROPAGE:
@@ -596,25 +584,25 @@ void execute(CPU *cpu)
   case TAX:
   {
     cpu->X = cpu->A;
-    LDX(cpu);
+    setZN(cpu, cpu->X);
     break;
   }
   case TAY:
   {
     cpu->Y = cpu->A;
-    LDY(cpu);
+    setZN(cpu, cpu->Y);
     break;
   }
   case TSX:
   {
     cpu->X = cpu->S;
-    LDX(cpu);
+    setZN(cpu, cpu->X);
     break;
   }
   case TXA:
   {
     cpu->A = cpu->X;
-    LDA(cpu);
+    setZN(cpu, cpu->A);
     break;
   }
   case TXS:
@@ -625,7 +613,7 @@ void execute(CPU *cpu)
   case TYA:
   {
     cpu->A = cpu->Y;
-    LDY(cpu);
+    setZN(cpu, cpu->Y);
     break;
   }
   case CLC:
