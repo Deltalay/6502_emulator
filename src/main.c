@@ -577,7 +577,99 @@ void execute(CPU *cpu)
       // A ^ result tells if the result’s sign differs from A (1 = sign changed)
       // AND both conditions will give 1 if same-sign operands produced a sign-flipped result
       // & 0x80 to isolate the sign bit for the V flag
-      cpu->V = (~(cpu->A ^ to_add) & (cpu->A ^ (BYTE)(result) )) & 0x80;
+      cpu->V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+      cpu->A = (BYTE)(result) & 0xFF;
+      setZN(cpu, cpu->A);
+      break;
+  }
+  case ADC_ZEROPAGE:
+  {
+      BYTE addr = mem_read(cpu->PC++);
+      BYTE val = mem_read(addr);
+      WORD result = cpu->A + cpu->C + val;
+      cpu->C = (result & 0x100) != 0;
+      cpu->V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+
+      cpu->A = (BYTE)(result) & 0xFF;
+      setZN(cpu, cpu->A);
+      break;
+  }
+  case ADC_ZEROPAGE_X:
+  {
+      BYTE base = mem_read(cpu->PC++);
+      BYTE addr = (BYTE)(base + cpu->X) & 0xFF;
+      BYTE val = mem_read(addr);
+      WORD result = cpu->A + cpu->C + val;
+      cpu->C = (result & 0x100) != 0;
+      cpu->V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+      cpu->A = (BYTE)(result) & 0xFF;
+      setZN(cpu, cpu->A);
+      break;
+  }
+  case ADC_ABSOLUTE:
+  {
+      BYTE first_addr = mem_read(cpu->PC++);
+      BYTE second_addr = mem_read(cpu->PC++);
+      WORD addr = ((second_addr << 8) + first_addr) & 0xFFFF;
+      BYTE val = mem_read(addr);
+      WORD result = cpu->A + cpu->C + val;
+      cpu->C = (result & 0x100) != 0;
+      cpu->V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+      cpu->A = (BYTE)(result) & 0xFF;
+      setZN(cpu, cpu->A);
+      break;
+  }
+  case ADC_ABSOLUTE_X:
+  {
+      BYTE first_addr = mem_read(cpu->PC++);
+      BYTE second_addr = mem_read(cpu->PC++);
+      WORD addr = (((second_addr << 8) + first_addr) + cpu->X) & 0xFFFF;
+      BYTE val = mem_read(addr);
+      WORD result = cpu->A + cpu->C + val;
+      cpu->C = (result & 0x100) != 0;
+      cpu->V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+      cpu->A = (BYTE)(result) & 0xFF;
+      setZN(cpu, cpu->A);
+      break;
+  }
+  case ADC_ABSOLUTE_Y:
+  {
+      BYTE first_addr = mem_read(cpu->PC++);
+      BYTE second_addr = mem_read(cpu->PC++);
+      WORD addr = (((second_addr << 8) + first_addr) + cpu->Y) & 0xFFFF;
+      BYTE val = mem_read(addr);
+      WORD result = cpu->A + cpu->C + val;
+      cpu->C = (result & 0x100) != 0;
+      cpu->V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+      cpu->A = (BYTE)(result) & 0xFF;
+      setZN(cpu, cpu->A);
+      break;
+  }
+  case ADC_INDIRECT_X:
+  {
+      BYTE ptr = mem_read(cpu->PC++);
+      BYTE addr_ptr = (BYTE)(ptr + cpu->X);
+      BYTE first_addr = mem_read(addr_ptr);
+      BYTE second_addr = mem_read((addr_ptr + 0x01) & 0xFF);
+      WORD addr = (second_addr << 8) | first_addr;
+      BYTE val = mem_read(addr);
+      WORD result = cpu->A + cpu->C + val;
+      cpu->C = (result & 0x100) != 0;
+      cpu->V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+      cpu->A = (BYTE)(result) & 0xFF;
+      setZN(cpu, cpu->A);
+      break;
+  }
+  case ADC_INDIRECT_Y:
+  {
+      BYTE addr_ptr = mem_read(cpu->PC++);
+      BYTE first_addr = mem_read(addr_ptr);
+      BYTE second_addr = mem_read((addr_ptr + 0x01) & 0xFF);
+      WORD addr = (second_addr << 8) | first_addr;
+      BYTE val = mem_read((addr + cpu->Y) & 0xFFFF);
+      WORD result = cpu->A + cpu->C + val;
+      cpu->C = (result & 0x100) != 0;
+      cpu->V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
       cpu->A = (BYTE)(result) & 0xFF;
       setZN(cpu, cpu->A);
       break;
