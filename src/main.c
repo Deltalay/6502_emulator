@@ -149,21 +149,28 @@ void cpu_reset(CPU *cpu)
 #define AND_INDIRECT_X 0x21
 #define AND_INDIRECT_Y 0x31
 #define ORA_IMMEDIATE 0x09
-#define ORA_ZEROPAGE 0x05 
-#define ORA_ZEROPAGE_X 0x15 
-#define ORA_ABSOLUTE 0x0D 
-#define ORA_ABSOLUTE_X 0x1D 
-#define ORA_ABSOLUTE_Y 0x19 
-#define ORA_INDIRECT_X 0x01 
+#define ORA_ZEROPAGE 0x05
+#define ORA_ZEROPAGE_X 0x15
+#define ORA_ABSOLUTE 0x0D
+#define ORA_ABSOLUTE_X 0x1D
+#define ORA_ABSOLUTE_Y 0x19
+#define ORA_INDIRECT_X 0x01
 #define ORA_INDIRECT_Y 0x11
-#define EOR_IMMEDIATE 0x49 
-#define EOR_ZEROPAGE 0x45 
-#define EOR_ZEROPAGE_X 0x55  
-#define EOR_ABSOLUTE 0x4D 
-#define EOR_ABSOLUTE_X 0x5D 
-#define EOR_ABSOLUTE_Y 0x59 
-#define EOR_INDIRECT_X 0x41 
-#define EOR_INDIRECT_Y 0x51 
+#define EOR_IMMEDIATE 0x49
+#define EOR_ZEROPAGE 0x45
+#define EOR_ZEROPAGE_X 0x55
+#define EOR_ABSOLUTE 0x4D
+#define EOR_ABSOLUTE_X 0x5D
+#define EOR_ABSOLUTE_Y 0x59
+#define EOR_INDIRECT_X 0x41
+#define EOR_INDIRECT_Y 0x51
+#define ASL_ACCUMULATOR 0x0A
+#define ASL_ZEROPAGE 0x06
+#define ASL_ZEROPAGE_X 0x16
+#define ASL_ABSOLUTE 0x0E
+#define ASL_ABSOLUTE_X 0x1E
+#define BIT_ZEROPAGE 0x24
+#define BIT_ABSOLUTE 0x2C
 void setZN(CPU *cpu, BYTE val)
 {
   cpu->P.Z = (val == 0);
@@ -911,6 +918,80 @@ void execute(CPU *cpu)
     setZN(cpu, cpu->A);
     break;
   }
+  case ASL_ACCUMULATOR:
+  {
+    cpu->P.C = (cpu->A & 0x80) != 0;
+    cpu->A = cpu->A << 1;
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case ASL_ZEROPAGE:
+  {
+      BYTE addr = mem_read(cpu->PC++);
+      BYTE val = mem_read(addr);
+      cpu->P.C = (val & 0x80) != 0;
+      val = val << 1;
+      mem_write(addr, val);
+      setZN(cpu, val);
+      break;
+  }
+  case ASL_ZEROPAGE_X:
+  {
+      BYTE addr = mem_read(cpu->PC++);
+      addr = (addr + cpu->X) & 0xFF;
+      BYTE val = mem_read(addr);
+      cpu->P.C = (val & 0x80) != 0;
+      val = val << 1;
+      mem_write(addr, val);
+      setZN(cpu, val);
+      break;
+  }
+  case ASL_ABSOLUTE:
+  {
+      BYTE first_addr = mem_read(cpu->PC++);
+      BYTE second_addr = mem_read(cpu->PC++);
+      WORD addr = ((second_addr << 8) + first_addr ) & 0xFFFF;
+      BYTE val = mem_read(addr);
+      cpu->P.C = (val & 0x80) != 0;
+      val = val << 1;
+      mem_write(addr, val);
+      setZN(cpu, val);
+      break;
+  }
+  case ASL_ABSOLUTE_X:
+  {
+      BYTE first_addr = mem_read(cpu->PC++);
+      BYTE second_addr = mem_read(cpu->PC++);
+      WORD addr = (((second_addr << 8) + first_addr ) + cpu->X) & 0xFFFF;
+      BYTE val = mem_read(addr);
+      cpu->P.C = (val & 0x80) != 0;
+      val = val << 1;
+      mem_write(addr, val);
+      setZN(cpu, val);
+      break;
+  }
+  case BIT_ZEROPAGE:
+  {
+      BYTE addr = mem_read(cpu->PC++);
+      BYTE val = mem_read(addr);
+      BYTE temp = val & cpu->A;
+      cpu->P.Z = (temp == 0);
+      cpu->P.N = (val & 0x80) != 0;
+      cpu->P.V = (val & 0x40) != 0;
+      break;
+  }
+  case BIT_ABSOLUTE:
+  {
+      BYTE first_addr = mem_read(cpu->PC++);
+      BYTE second_addr = mem_read(cpu->PC++);
+      WORD addr = ((second_addr << 8) + first_addr ) & 0xFFFF;
+      BYTE val = mem_read(addr);
+      BYTE temp = val & cpu->A;
+      cpu->P.Z = (temp == 0);
+      cpu->P.N = (val & 0x80) != 0;
+      cpu->P.V = (val & 0x40) != 0;
+      break;
+  }
   case DEX:
   {
       cpu->X = (cpu->X - 1) & 0xFF;
@@ -1109,8 +1190,6 @@ int main()
   mem_write(0x8090, NOP);
   mem_write(0x8091, NOP);
   mem_write(0x8092, BRK);
-
-  // Initialize some zero-page and absolute memory for LDA/STA/INC/ADC/AND tests
   mem_write(0x0020, 0xAA);
   mem_write(0x0021, 0xBB);
   mem_write(0x0022, 0xCC);
