@@ -471,87 +471,87 @@ void execute(CPU *cpu)
   }
   case BCC:
   {
-   SBYTE offset = mem_read(cpu->PC++);
-   if (cpu->P.C == 0) {
-       cpu->PC = (cpu->PC + offset) & 0xFFFF;
-   }
-   break;
+    SBYTE offset = mem_read(cpu->PC++);
+    if (cpu->P.C == 0)
+    {
+      cpu->PC = (cpu->PC + offset) & 0xFFFF;
+    }
+    break;
   }
   case BCS:
   {
-      SBYTE offset = mem_read(cpu->PC++);
-      if (cpu->P.C == 1)
-      {
-          cpu->PC = (cpu->PC + offset) & 0xFFFF;
-      }
-      break;
+    SBYTE offset = mem_read(cpu->PC++);
+    if (cpu->P.C == 1)
+    {
+      cpu->PC = (cpu->PC + offset) & 0xFFFF;
+    }
+    break;
   }
   case BEQ:
   {
-      SBYTE offset = mem_read(cpu->PC++);
-      if (cpu->P.Z == 1)
-      {
-          cpu->PC = (cpu->PC + offset) & 0xFFFF;
-      }
-      break;
+    SBYTE offset = mem_read(cpu->PC++);
+    if (cpu->P.Z == 1)
+    {
+      cpu->PC = (cpu->PC + offset) & 0xFFFF;
+    }
+    break;
   }
   case BMI:
   {
-      SBYTE offset = mem_read(cpu->PC++);
-      if (cpu->P.N == 1)
-      {
-          cpu->PC = (cpu->PC + offset) & 0xFFFF;
-      }
-      break;
+    SBYTE offset = mem_read(cpu->PC++);
+    if (cpu->P.N == 1)
+    {
+      cpu->PC = (cpu->PC + offset) & 0xFFFF;
+    }
+    break;
   }
   case BNE:
   {
-      SBYTE offset = mem_read(cpu->PC++);
-      if (cpu->P.Z == 0)
-      {
-          cpu->PC = (cpu->PC + offset) & 0xFFFF;
-      }
-      break;
+    SBYTE offset = mem_read(cpu->PC++);
+    if (cpu->P.Z == 0)
+    {
+      cpu->PC = (cpu->PC + offset) & 0xFFFF;
+    }
+    break;
   }
   case BPL:
   {
-      SBYTE offset = mem_read(cpu->PC++);
-      if (cpu->P.N == 0)
-      {
-          cpu->PC = (cpu->PC + offset) & 0xFFFF;
-      }
-      break;
+    SBYTE offset = mem_read(cpu->PC++);
+    if (cpu->P.N == 0)
+    {
+      cpu->PC = (cpu->PC + offset) & 0xFFFF;
+    }
+    break;
   }
   case BVC:
   {
-      SBYTE offset = mem_read(cpu->PC++);
-      if (cpu->P.V == 0)
-      {
-          cpu->PC = (cpu->PC + offset) & 0xFFFF;
-
-      }
-      break;
+    SBYTE offset = mem_read(cpu->PC++);
+    if (cpu->P.V == 0)
+    {
+      cpu->PC = (cpu->PC + offset) & 0xFFFF;
+    }
+    break;
   }
   case BVS:
   {
-      SBYTE offset = mem_read(cpu->PC++);
-      if (cpu->P.V == 1)
-      {
-          cpu->PC = (cpu->PC + offset) & 0xFFFF;
-      }
-      break;
+    SBYTE offset = mem_read(cpu->PC++);
+    if (cpu->P.V == 1)
+    {
+      cpu->PC = (cpu->PC + offset) & 0xFFFF;
+    }
+    break;
   }
   case INX:
   {
-      cpu->X = (cpu->X + 1) & 0xFF;
-      setZN(cpu, cpu->X);
-      break;
+    cpu->X = (cpu->X + 1) & 0xFF;
+    setZN(cpu, cpu->X);
+    break;
   }
   case INY:
   {
-      cpu->Y = (cpu->Y + 1) & 0xFF;
-      setZN(cpu, cpu->Y);
-      break;
+    cpu->Y = (cpu->Y + 1) & 0xFF;
+    setZN(cpu, cpu->Y);
+    break;
   }
   case DEC_ZEROPAGE:
   {
@@ -596,114 +596,114 @@ void execute(CPU *cpu)
   }
   case ADC_IMMEDIATE:
   {
-      // We can just add the carry flag. Even if it does not set.
-      // Because if set, C = 1, if not, then C = 0
-      BYTE to_add = mem_read(cpu->PC++);
-      WORD result = cpu->A + cpu->P.C + to_add;
-      cpu->P.C = (result & 0x100) != 0;
-      // Overflow (V) is set when (+) + (+) = - or (-) + (-) = +
-      // We detect it by looking at the sign bit (bit 7).
-      // A ^ to_add tells if the signs of A and operand differ (1 = different, 0 = same)
-      // Negate it (~) now 1 indicates the operands have the same sign
-      // A ^ result tells if the result’s sign differs from A (1 = sign changed)
-      // AND both conditions will give 1 if same-sign operands produced a sign-flipped result
-      // & 0x80 to isolate the sign bit for the V flag
-      cpu->P.V = ((~(cpu->A ^ to_add) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
-      cpu->A = (BYTE)(result) & 0xFF;
-      setZN(cpu, cpu->A);
-      break;
+    // We can just add the carry flag. Even if it does not set.
+    // Because if set, C = 1, if not, then C = 0
+    BYTE to_add = mem_read(cpu->PC++);
+    WORD result = cpu->A + cpu->P.C + to_add;
+    cpu->P.C = (result & 0x100) != 0;
+    // Overflow (V) is set when (+) + (+) = - or (-) + (-) = +
+    // We detect it by looking at the sign bit (bit 7).
+    // A ^ to_add tells if the signs of A and operand differ (1 = different, 0 = same)
+    // Negate it (~) now 1 indicates the operands have the same sign
+    // A ^ result tells if the result’s sign differs from A (1 = sign changed)
+    // AND both conditions will give 1 if same-sign operands produced a sign-flipped result
+    // & 0x80 to isolate the sign bit for the V flag
+    cpu->P.V = ((~(cpu->A ^ to_add) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+    cpu->A = (BYTE)(result) & 0xFF;
+    setZN(cpu, cpu->A);
+    break;
   }
   case ADC_ZEROPAGE:
   {
-      BYTE addr = mem_read(cpu->PC++);
-      BYTE val = mem_read(addr);
-      WORD result = cpu->A + cpu->P.C + val;
-      cpu->P.C = (result & 0x100) != 0;
-      cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+    BYTE addr = mem_read(cpu->PC++);
+    BYTE val = mem_read(addr);
+    WORD result = cpu->A + cpu->P.C + val;
+    cpu->P.C = (result & 0x100) != 0;
+    cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
 
-      cpu->A = (BYTE)(result) & 0xFF;
-      setZN(cpu, cpu->A);
-      break;
+    cpu->A = (BYTE)(result) & 0xFF;
+    setZN(cpu, cpu->A);
+    break;
   }
   case ADC_ZEROPAGE_X:
   {
-      BYTE base = mem_read(cpu->PC++);
-      BYTE addr = (BYTE)(base + cpu->X) & 0xFF;
-      BYTE val = mem_read(addr);
-      WORD result = cpu->A + cpu->P.C + val;
-      cpu->P.C = (result & 0x100) != 0;
-      cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
-      cpu->A = (BYTE)(result) & 0xFF;
-      setZN(cpu, cpu->A);
-      break;
+    BYTE base = mem_read(cpu->PC++);
+    BYTE addr = (BYTE)(base + cpu->X) & 0xFF;
+    BYTE val = mem_read(addr);
+    WORD result = cpu->A + cpu->P.C + val;
+    cpu->P.C = (result & 0x100) != 0;
+    cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+    cpu->A = (BYTE)(result) & 0xFF;
+    setZN(cpu, cpu->A);
+    break;
   }
   case ADC_ABSOLUTE:
   {
-      BYTE first_addr = mem_read(cpu->PC++);
-      BYTE second_addr = mem_read(cpu->PC++);
-      WORD addr = ((second_addr << 8) + first_addr) & 0xFFFF;
-      BYTE val = mem_read(addr);
-      WORD result = cpu->A + cpu->P.C + val;
-      cpu->P.C = (result & 0x100) != 0;
-      cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
-      cpu->A = (BYTE)(result) & 0xFF;
-      setZN(cpu, cpu->A);
-      break;
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = ((second_addr << 8) + first_addr) & 0xFFFF;
+    BYTE val = mem_read(addr);
+    WORD result = cpu->A + cpu->P.C + val;
+    cpu->P.C = (result & 0x100) != 0;
+    cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+    cpu->A = (BYTE)(result) & 0xFF;
+    setZN(cpu, cpu->A);
+    break;
   }
   case ADC_ABSOLUTE_X:
   {
-      BYTE first_addr = mem_read(cpu->PC++);
-      BYTE second_addr = mem_read(cpu->PC++);
-      WORD addr = (((second_addr << 8) + first_addr) + cpu->X) & 0xFFFF;
-      BYTE val = mem_read(addr);
-      WORD result = cpu->A + cpu->P.C + val;
-      cpu->P.C = (result & 0x100) != 0;
-      cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
-      cpu->A = (BYTE)(result) & 0xFF;
-      setZN(cpu, cpu->A);
-      break;
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = (((second_addr << 8) + first_addr) + cpu->X) & 0xFFFF;
+    BYTE val = mem_read(addr);
+    WORD result = cpu->A + cpu->P.C + val;
+    cpu->P.C = (result & 0x100) != 0;
+    cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+    cpu->A = (BYTE)(result) & 0xFF;
+    setZN(cpu, cpu->A);
+    break;
   }
   case ADC_ABSOLUTE_Y:
   {
-      BYTE first_addr = mem_read(cpu->PC++);
-      BYTE second_addr = mem_read(cpu->PC++);
-      WORD addr = (((second_addr << 8) + first_addr) + cpu->Y) & 0xFFFF;
-      BYTE val = mem_read(addr);
-      WORD result = cpu->A + cpu->P.C + val;
-      cpu->P.C = (result & 0x100) != 0;
-      cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
-      cpu->A = (BYTE)(result) & 0xFF;
-      setZN(cpu, cpu->A);
-      break;
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = (((second_addr << 8) + first_addr) + cpu->Y) & 0xFFFF;
+    BYTE val = mem_read(addr);
+    WORD result = cpu->A + cpu->P.C + val;
+    cpu->P.C = (result & 0x100) != 0;
+    cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+    cpu->A = (BYTE)(result) & 0xFF;
+    setZN(cpu, cpu->A);
+    break;
   }
   case ADC_INDIRECT_X:
   {
-      BYTE ptr = mem_read(cpu->PC++);
-      BYTE addr_ptr = (BYTE)(ptr + cpu->X);
-      BYTE first_addr = mem_read(addr_ptr);
-      BYTE second_addr = mem_read((addr_ptr + 0x01) & 0xFF);
-      WORD addr = (second_addr << 8) | first_addr;
-      BYTE val = mem_read(addr);
-      WORD result = cpu->A + cpu->P.C + val;
-      cpu->P.C = (result & 0x100) != 0;
-      cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
-      cpu->A = (BYTE)(result) & 0xFF;
-      setZN(cpu, cpu->A);
-      break;
+    BYTE ptr = mem_read(cpu->PC++);
+    BYTE addr_ptr = (BYTE)(ptr + cpu->X);
+    BYTE first_addr = mem_read(addr_ptr);
+    BYTE second_addr = mem_read((addr_ptr + 0x01) & 0xFF);
+    WORD addr = (second_addr << 8) | first_addr;
+    BYTE val = mem_read(addr);
+    WORD result = cpu->A + cpu->P.C + val;
+    cpu->P.C = (result & 0x100) != 0;
+    cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+    cpu->A = (BYTE)(result) & 0xFF;
+    setZN(cpu, cpu->A);
+    break;
   }
   case ADC_INDIRECT_Y:
   {
-      BYTE addr_ptr = mem_read(cpu->PC++);
-      BYTE first_addr = mem_read(addr_ptr);
-      BYTE second_addr = mem_read((addr_ptr + 0x01) & 0xFF);
-      WORD addr = (second_addr << 8) | first_addr;
-      BYTE val = mem_read((addr + cpu->Y) & 0xFFFF);
-      WORD result = cpu->A + cpu->P.C + val;
-      cpu->P.C = (result & 0x100) != 0;
-      cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
-      cpu->A = (BYTE)(result) & 0xFF;
-      setZN(cpu, cpu->A);
-      break;
+    BYTE addr_ptr = mem_read(cpu->PC++);
+    BYTE first_addr = mem_read(addr_ptr);
+    BYTE second_addr = mem_read((addr_ptr + 0x01) & 0xFF);
+    WORD addr = (second_addr << 8) | first_addr;
+    BYTE val = mem_read((addr + cpu->Y) & 0xFFFF);
+    WORD result = cpu->A + cpu->P.C + val;
+    cpu->P.C = (result & 0x100) != 0;
+    cpu->P.V = ((~(cpu->A ^ val) & (cpu->A ^ (BYTE)(result)) & 0x80) != 0);
+    cpu->A = (BYTE)(result) & 0xFF;
+    setZN(cpu, cpu->A);
+    break;
   }
   case AND_IMMEDIATE:
   {
@@ -927,82 +927,82 @@ void execute(CPU *cpu)
   }
   case ASL_ZEROPAGE:
   {
-      BYTE addr = mem_read(cpu->PC++);
-      BYTE val = mem_read(addr);
-      cpu->P.C = (val & 0x80) != 0;
-      val = val << 1;
-      mem_write(addr, val);
-      setZN(cpu, val);
-      break;
+    BYTE addr = mem_read(cpu->PC++);
+    BYTE val = mem_read(addr);
+    cpu->P.C = (val & 0x80) != 0;
+    val = val << 1;
+    mem_write(addr, val);
+    setZN(cpu, val);
+    break;
   }
   case ASL_ZEROPAGE_X:
   {
-      BYTE addr = mem_read(cpu->PC++);
-      addr = (addr + cpu->X) & 0xFF;
-      BYTE val = mem_read(addr);
-      cpu->P.C = (val & 0x80) != 0;
-      val = val << 1;
-      mem_write(addr, val);
-      setZN(cpu, val);
-      break;
+    BYTE addr = mem_read(cpu->PC++);
+    addr = (addr + cpu->X) & 0xFF;
+    BYTE val = mem_read(addr);
+    cpu->P.C = (val & 0x80) != 0;
+    val = val << 1;
+    mem_write(addr, val);
+    setZN(cpu, val);
+    break;
   }
   case ASL_ABSOLUTE:
   {
-      BYTE first_addr = mem_read(cpu->PC++);
-      BYTE second_addr = mem_read(cpu->PC++);
-      WORD addr = ((second_addr << 8) + first_addr ) & 0xFFFF;
-      BYTE val = mem_read(addr);
-      cpu->P.C = (val & 0x80) != 0;
-      val = val << 1;
-      mem_write(addr, val);
-      setZN(cpu, val);
-      break;
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = ((second_addr << 8) + first_addr) & 0xFFFF;
+    BYTE val = mem_read(addr);
+    cpu->P.C = (val & 0x80) != 0;
+    val = val << 1;
+    mem_write(addr, val);
+    setZN(cpu, val);
+    break;
   }
   case ASL_ABSOLUTE_X:
   {
-      BYTE first_addr = mem_read(cpu->PC++);
-      BYTE second_addr = mem_read(cpu->PC++);
-      WORD addr = (((second_addr << 8) + first_addr ) + cpu->X) & 0xFFFF;
-      BYTE val = mem_read(addr);
-      cpu->P.C = (val & 0x80) != 0;
-      val = val << 1;
-      mem_write(addr, val);
-      setZN(cpu, val);
-      break;
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = (((second_addr << 8) + first_addr) + cpu->X) & 0xFFFF;
+    BYTE val = mem_read(addr);
+    cpu->P.C = (val & 0x80) != 0;
+    val = val << 1;
+    mem_write(addr, val);
+    setZN(cpu, val);
+    break;
   }
   case BIT_ZEROPAGE:
   {
-      BYTE addr = mem_read(cpu->PC++);
-      BYTE val = mem_read(addr);
-      BYTE temp = val & cpu->A;
-      cpu->P.Z = (temp == 0);
-      cpu->P.N = (val & 0x80) != 0;
-      cpu->P.V = (val & 0x40) != 0;
-      break;
+    BYTE addr = mem_read(cpu->PC++);
+    BYTE val = mem_read(addr);
+    BYTE temp = val & cpu->A;
+    cpu->P.Z = (temp == 0);
+    cpu->P.N = (val & 0x80) != 0;
+    cpu->P.V = (val & 0x40) != 0;
+    break;
   }
   case BIT_ABSOLUTE:
   {
-      BYTE first_addr = mem_read(cpu->PC++);
-      BYTE second_addr = mem_read(cpu->PC++);
-      WORD addr = ((second_addr << 8) + first_addr ) & 0xFFFF;
-      BYTE val = mem_read(addr);
-      BYTE temp = val & cpu->A;
-      cpu->P.Z = (temp == 0);
-      cpu->P.N = (val & 0x80) != 0;
-      cpu->P.V = (val & 0x40) != 0;
-      break;
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = ((second_addr << 8) + first_addr) & 0xFFFF;
+    BYTE val = mem_read(addr);
+    BYTE temp = val & cpu->A;
+    cpu->P.Z = (temp == 0);
+    cpu->P.N = (val & 0x80) != 0;
+    cpu->P.V = (val & 0x40) != 0;
+    break;
   }
   case DEX:
   {
-      cpu->X = (cpu->X - 1) & 0xFF;
-      setZN(cpu, cpu->X);
-      break;
+    cpu->X = (cpu->X - 1) & 0xFF;
+    setZN(cpu, cpu->X);
+    break;
   }
   case DEY:
   {
-      cpu->Y = (cpu->Y - 1) & 0xFF;
-      setZN(cpu, cpu->Y);
-      break;
+    cpu->Y = (cpu->Y - 1) & 0xFF;
+    setZN(cpu, cpu->Y);
+    break;
   }
   case TAX:
   {
@@ -1061,18 +1061,18 @@ void execute(CPU *cpu)
   }
   case CLD:
   {
-      cpu->P.D = 0;
-      break;
+    cpu->P.D = 0;
+    break;
   }
   case CLI:
   {
-      cpu->P.I = 0;
-      break;
+    cpu->P.I = 0;
+    break;
   }
   case CLV:
   {
-      cpu->P.V = 0;
-      break;
+    cpu->P.V = 0;
+    break;
   }
   case NOP:
   {
@@ -1092,51 +1092,93 @@ void execute(CPU *cpu)
 int main()
 {
   CPU cpu;
-
   mem_write(0xFFFC, 0x00);
   mem_write(0xFFFD, 0x80);
   cpu_reset(&cpu);
   printf("CPU reset complete. PC = 0x%04X, S = 0x%02X, U = %d, X = 0x%02X\n",
          cpu.PC, cpu.S, cpu.P.U, cpu.X);
-  mem_write(0x8000, LDA_IMMEDIATE); mem_write(0x8001, 0x10);
-  mem_write(0x8002, LDA_ZEROPAGE);  mem_write(0x8003, 0x20);
-  mem_write(0x8004, LDA_ZEROPAGE_X); mem_write(0x8005, 0x1D);
-  mem_write(0x8006, LDA_ABSOLUTE); mem_write(0x8007, 0x00); mem_write(0x8008, 0x90);
-  mem_write(0x8009, LDA_ABSOLUTE_X); mem_write(0x800A, 0x01); mem_write(0x800B, 0x90);
-  mem_write(0x800C, LDA_ABSOLUTE_Y); mem_write(0x800D, 0x02); mem_write(0x800E, 0x90);
-  mem_write(0x800F, LDA_INDIRECT_X); mem_write(0x8010, 0x30);
-  mem_write(0x8011, LDA_INDIRECT_Y); mem_write(0x8012, 0x31);
 
-  // LDX tests
-  mem_write(0x8013, LDX_IMMEDIATE); mem_write(0x8014, 0x03);
-  mem_write(0x8015, LDX_ZEROPAGE);  mem_write(0x8016, 0x21);
-  mem_write(0x8017, LDX_ZEROPAGE_Y); mem_write(0x8018, 0x22);
-  mem_write(0x8019, LDX_ABSOLUTE); mem_write(0x801A, 0x01); mem_write(0x801B, 0x90);
-  mem_write(0x801C, LDX_ABSOLUTE_Y); mem_write(0x801D, 0x02); mem_write(0x801E, 0x90);
+  mem_write(0x8000, LDA_IMMEDIATE);
+  mem_write(0x8001, 0x10);
+  mem_write(0x8002, LDA_ZEROPAGE);
+  mem_write(0x8003, 0x20);
+  mem_write(0x8004, LDA_ZEROPAGE_X);
+  mem_write(0x8005, 0x1D);
+  mem_write(0x8006, LDA_ABSOLUTE);
+  mem_write(0x8007, 0x00);
+  mem_write(0x8008, 0x90);
+  mem_write(0x8009, LDA_ABSOLUTE_X);
+  mem_write(0x800A, 0x01);
+  mem_write(0x800B, 0x90);
+  mem_write(0x800C, LDA_ABSOLUTE_Y);
+  mem_write(0x800D, 0x02);
+  mem_write(0x800E, 0x90);
+  mem_write(0x800F, LDA_INDIRECT_X);
+  mem_write(0x8010, 0x30);
+  mem_write(0x8011, LDA_INDIRECT_Y);
+  mem_write(0x8012, 0x31);
+  // LDX
+  mem_write(0x8013, LDX_IMMEDIATE);
+  mem_write(0x8014, 0x03);
+  mem_write(0x8015, LDX_ZEROPAGE);
+  mem_write(0x8016, 0x21);
+  mem_write(0x8017, LDX_ZEROPAGE_Y);
+  mem_write(0x8018, 0x22);
+  mem_write(0x8019, LDX_ABSOLUTE);
+  mem_write(0x801A, 0x01);
+  mem_write(0x801B, 0x90);
+  mem_write(0x801C, LDX_ABSOLUTE_Y);
+  mem_write(0x801D, 0x02);
+  mem_write(0x801E, 0x90);
 
-  // LDY tests
-  mem_write(0x801F, LDY_IMMEDIATE); mem_write(0x8020, 0x04);
-  mem_write(0x8021, LDY_ZEROPAGE);  mem_write(0x8022, 0x22);
-  mem_write(0x8023, LDY_ZEROPAGE_X); mem_write(0x8024, 0x1E);
-  mem_write(0x8025, LDY_ABSOLUTE); mem_write(0x8026, 0x02); mem_write(0x8027, 0x90);
-  mem_write(0x8028, LDY_ABSOLUTE_X); mem_write(0x8029, 0x01); mem_write(0x802A, 0x90);
+  // LDY
+  mem_write(0x801F, LDY_IMMEDIATE);
+  mem_write(0x8020, 0x04);
+  mem_write(0x8021, LDY_ZEROPAGE);
+  mem_write(0x8022, 0x22);
+  mem_write(0x8023, LDY_ZEROPAGE_X);
+  mem_write(0x8024, 0x1E);
+  mem_write(0x8025, LDY_ABSOLUTE);
+  mem_write(0x8026, 0x02);
+  mem_write(0x8027, 0x90);
+  mem_write(0x8028, LDY_ABSOLUTE_X);
+  mem_write(0x8029, 0x01);
+  mem_write(0x802A, 0x90);
 
-  // STA/STX/STY tests
-  mem_write(0x802B, STA_ZEROPAGE); mem_write(0x802C, 0x40);
-  mem_write(0x802D, STA_ZEROPAGE_X); mem_write(0x802E, 0x41);
-  mem_write(0x802F, STA_ABSOLUTE); mem_write(0x8030, 0x00); mem_write(0x8031, 0x90);
-  mem_write(0x8032, STA_ABSOLUTE_X); mem_write(0x8033, 0x01); mem_write(0x8034, 0x90);
-  mem_write(0x8035, STA_ABSOLUTE_Y); mem_write(0x8036, 0x02); mem_write(0x8037, 0x90);
-  mem_write(0x8038, STA_INDIRECT_X); mem_write(0x8039, 0x50);
-  mem_write(0x803A, STA_INDIRECT_Y); mem_write(0x803B, 0x51);
+  // STA/STX/STY
+  mem_write(0x802B, STA_ZEROPAGE);
+  mem_write(0x802C, 0x40);
+  mem_write(0x802D, STA_ZEROPAGE_X);
+  mem_write(0x802E, 0x41);
+  mem_write(0x802F, STA_ABSOLUTE);
+  mem_write(0x8030, 0x00);
+  mem_write(0x8031, 0x90);
+  mem_write(0x8032, STA_ABSOLUTE_X);
+  mem_write(0x8033, 0x01);
+  mem_write(0x8034, 0x90);
+  mem_write(0x8035, STA_ABSOLUTE_Y);
+  mem_write(0x8036, 0x02);
+  mem_write(0x8037, 0x90);
+  mem_write(0x8038, STA_INDIRECT_X);
+  mem_write(0x8039, 0x50);
+  mem_write(0x803A, STA_INDIRECT_Y);
+  mem_write(0x803B, 0x51);
 
-  mem_write(0x803C, STX_ZEROPAGE); mem_write(0x803D, 0x42);
-  mem_write(0x803E, STX_ZEROPAGE_Y); mem_write(0x803F, 0x43);
-  mem_write(0x8040, STX_ABSOLUTE); mem_write(0x8041, 0x03); mem_write(0x8042, 0x90);
+  mem_write(0x803C, STX_ZEROPAGE);
+  mem_write(0x803D, 0x42);
+  mem_write(0x803E, STX_ZEROPAGE_Y);
+  mem_write(0x803F, 0x43);
+  mem_write(0x8040, STX_ABSOLUTE);
+  mem_write(0x8041, 0x03);
+  mem_write(0x8042, 0x90);
 
-  mem_write(0x8043, STY_ZEROPAGE); mem_write(0x8044, 0x44);
-  mem_write(0x8045, STY_ZEROPAGE_X); mem_write(0x8046, 0x45);
-  mem_write(0x8047, STY_ABSOLUTE); mem_write(0x8048, 0x04); mem_write(0x8049, 0x90);
+  mem_write(0x8043, STY_ZEROPAGE);
+  mem_write(0x8044, 0x44);
+  mem_write(0x8045, STY_ZEROPAGE_X);
+  mem_write(0x8046, 0x45);
+  mem_write(0x8047, STY_ABSOLUTE);
+  mem_write(0x8048, 0x04);
+  mem_write(0x8049, 0x90);
 
   // Transfers
   mem_write(0x804A, TAX);
@@ -1147,53 +1189,162 @@ int main()
   mem_write(0x804F, TYA);
 
   // INC/DEC
-  mem_write(0x8050, INC_ZEROPAGE); mem_write(0x8051, 0x60);
-  mem_write(0x8052, INC_ZEROPAGE_X); mem_write(0x8053, 0x61);
-  mem_write(0x8054, INC_ABSOLUTE); mem_write(0x8055, 0x9000 & 0xFF); mem_write(0x8056, 0x9000 >> 8);
-  mem_write(0x8057, INC_ABSOLUTE_X); mem_write(0x8058, 0x9003 & 0xFF); mem_write(0x8059, 0x9003 >> 8);
+  mem_write(0x8050, INC_ZEROPAGE);
+  mem_write(0x8051, 0x60);
+  mem_write(0x8052, INC_ZEROPAGE_X);
+  mem_write(0x8053, 0x61);
+  mem_write(0x8054, INC_ABSOLUTE);
+  mem_write(0x8055, 0x9000 & 0xFF);
+  mem_write(0x8056, 0x9000 >> 8);
+  mem_write(0x8057, INC_ABSOLUTE_X);
+  mem_write(0x8058, 0x9003 & 0xFF);
+  mem_write(0x8059, 0x9003 >> 8);
 
-  mem_write(0x805A, DEC_ZEROPAGE); mem_write(0x805B, 0x62);
-  mem_write(0x805C, DEC_ZEROPAGE_X); mem_write(0x805D, 0x63);
-  mem_write(0x805E, DEC_ABSOLUTE); mem_write(0x805F, 0x9000 & 0xFF); mem_write(0x8060, 0x9000 >> 8);
-  mem_write(0x8061, DEC_ABSOLUTE_X); mem_write(0x8062, 0x9003 & 0xFF); mem_write(0x8063, 0x9003 >> 8);
+  mem_write(0x805A, DEC_ZEROPAGE);
+  mem_write(0x805B, 0x62);
+  mem_write(0x805C, DEC_ZEROPAGE_X);
+  mem_write(0x805D, 0x63);
+  mem_write(0x805E, DEC_ABSOLUTE);
+  mem_write(0x805F, 0x9000 & 0xFF);
+  mem_write(0x8060, 0x9000 >> 8);
+  mem_write(0x8061, DEC_ABSOLUTE_X);
+  mem_write(0x8062, 0x9003 & 0xFF);
+  mem_write(0x8063, 0x9003 >> 8);
 
   mem_write(0x8064, INX);
   mem_write(0x8065, INY);
 
   // ADC tests
-  mem_write(0x8066, ADC_IMMEDIATE); mem_write(0x8067, 0x10);
-  mem_write(0x8068, ADC_ZEROPAGE); mem_write(0x8069, 0x20);
-  mem_write(0x806A, ADC_ZEROPAGE_X); mem_write(0x806B, 0x1D);
-  mem_write(0x806C, ADC_ABSOLUTE); mem_write(0x806D, 0x00); mem_write(0x806E, 0x90);
-  mem_write(0x806F, ADC_ABSOLUTE_X); mem_write(0x8070, 0x01); mem_write(0x8071, 0x90);
-  mem_write(0x8072, ADC_ABSOLUTE_Y); mem_write(0x8073, 0x02); mem_write(0x8074, 0x90);
-  mem_write(0x8075, ADC_INDIRECT_X); mem_write(0x8076, 0x30);
-  mem_write(0x8077, ADC_INDIRECT_Y); mem_write(0x8078, 0x31);
+  mem_write(0x8066, ADC_IMMEDIATE);
+  mem_write(0x8067, 0x10);
+  mem_write(0x8068, ADC_ZEROPAGE);
+  mem_write(0x8069, 0x20);
+  mem_write(0x806A, ADC_ZEROPAGE_X);
+  mem_write(0x806B, 0x1D);
+  mem_write(0x806C, ADC_ABSOLUTE);
+  mem_write(0x806D, 0x00);
+  mem_write(0x806E, 0x90);
+  mem_write(0x806F, ADC_ABSOLUTE_X);
+  mem_write(0x8070, 0x01);
+  mem_write(0x8071, 0x90);
+  mem_write(0x8072, ADC_ABSOLUTE_Y);
+  mem_write(0x8073, 0x02);
+  mem_write(0x8074, 0x90);
+  mem_write(0x8075, ADC_INDIRECT_X);
+  mem_write(0x8076, 0x30);
+  mem_write(0x8077, ADC_INDIRECT_Y);
+  mem_write(0x8078, 0x31);
 
   // AND tests
-  mem_write(0x8079, AND_IMMEDIATE); mem_write(0x807A, 0x0F);
-  mem_write(0x807B, AND_ZEROPAGE); mem_write(0x807C, 0x20);
-  mem_write(0x807D, AND_ZEROPAGE_X); mem_write(0x807E, 0x1D);
-  mem_write(0x807F, AND_ABSOLUTE); mem_write(0x8080, 0x00); mem_write(0x8081, 0x90);
-  mem_write(0x8082, AND_ABSOLUTE_X); mem_write(0x8083, 0x01); mem_write(0x8084, 0x90);
-  mem_write(0x8085, AND_ABSOLUTE_Y); mem_write(0x8086, 0x02); mem_write(0x8087, 0x90);
-  mem_write(0x8088, AND_INDIRECT_X); mem_write(0x8089, 0x30);
-  mem_write(0x808A, AND_INDIRECT_Y); mem_write(0x808B, 0x31);
+  mem_write(0x8079, AND_IMMEDIATE);
+  mem_write(0x807A, 0x0F);
+  mem_write(0x807B, AND_ZEROPAGE);
+  mem_write(0x807C, 0x20);
+  mem_write(0x807D, AND_ZEROPAGE_X);
+  mem_write(0x807E, 0x1D);
+  mem_write(0x807F, AND_ABSOLUTE);
+  mem_write(0x8080, 0x00);
+  mem_write(0x8081, 0x90);
+  mem_write(0x8082, AND_ABSOLUTE_X);
+  mem_write(0x8083, 0x01);
+  mem_write(0x8084, 0x90);
+  mem_write(0x8085, AND_ABSOLUTE_Y);
+  mem_write(0x8086, 0x02);
+  mem_write(0x8087, 0x90);
+  mem_write(0x8088, AND_INDIRECT_X);
+  mem_write(0x8089, 0x30);
+  mem_write(0x808A, AND_INDIRECT_Y);
+  mem_write(0x808B, 0x31);
 
-  // Flags setup/cleanup
+  // Original Flag setup
   mem_write(0x808C, CLC);
   mem_write(0x808D, SEC);
   mem_write(0x808E, SED);
   mem_write(0x808F, SEI);
 
-  // NOP/BRK to stop
-  mem_write(0x8090, NOP);
-  mem_write(0x8091, NOP);
-  mem_write(0x8092, BRK);
+  // --- NEWLY ADDED TESTS (ORA, EOR, BIT, ASL, DEGS, FLAGS) ---
+  // Starting at 0x8090
+
+  // ORA (Logical OR) Tests
+  mem_write(0x8090, ORA_IMMEDIATE);
+  mem_write(0x8091, 0x01);
+  mem_write(0x8092, ORA_ZEROPAGE);
+  mem_write(0x8093, 0x20);
+  mem_write(0x8094, ORA_ZEROPAGE_X);
+  mem_write(0x8095, 0x1D);
+  mem_write(0x8096, ORA_ABSOLUTE);
+  mem_write(0x8097, 0x00);
+  mem_write(0x8098, 0x90);
+  mem_write(0x8099, ORA_ABSOLUTE_X);
+  mem_write(0x809A, 0x01);
+  mem_write(0x809B, 0x90);
+  mem_write(0x809C, ORA_ABSOLUTE_Y);
+  mem_write(0x809D, 0x02);
+  mem_write(0x809E, 0x90);
+  mem_write(0x809F, ORA_INDIRECT_X);
+  mem_write(0x80A0, 0x30);
+  mem_write(0x80A1, ORA_INDIRECT_Y);
+  mem_write(0x80A2, 0x31);
+
+  // EOR (Exclusive OR) Tests
+  mem_write(0x80A3, EOR_IMMEDIATE);
+  mem_write(0x80A4, 0xFF);
+  mem_write(0x80A5, EOR_ZEROPAGE);
+  mem_write(0x80A6, 0x20);
+  mem_write(0x80A7, EOR_ZEROPAGE_X);
+  mem_write(0x80A8, 0x1D);
+  mem_write(0x80A9, EOR_ABSOLUTE);
+  mem_write(0x80AA, 0x00);
+  mem_write(0x80AB, 0x90);
+  mem_write(0x80AC, EOR_ABSOLUTE_X);
+  mem_write(0x80AD, 0x01);
+  mem_write(0x80AE, 0x90);
+  mem_write(0x80AF, EOR_ABSOLUTE_Y);
+  mem_write(0x80B0, 0x02);
+  mem_write(0x80B1, 0x90);
+  mem_write(0x80B2, EOR_INDIRECT_X);
+  mem_write(0x80B3, 0x30);
+  mem_write(0x80B4, EOR_INDIRECT_Y);
+  mem_write(0x80B5, 0x31);
+
+  // BIT Tests
+  mem_write(0x80B6, BIT_ZEROPAGE);
+  mem_write(0x80B7, 0x20);
+  mem_write(0x80B8, BIT_ABSOLUTE);
+  mem_write(0x80B9, 0x00);
+  mem_write(0x80BA, 0x90);
+
+  // ASL (Arithmetic Shift Left) Tests
+  mem_write(0x80BB, ASL_ACCUMULATOR);
+  mem_write(0x80BC, ASL_ZEROPAGE);
+  mem_write(0x80BD, 0x20);
+  mem_write(0x80BE, ASL_ZEROPAGE_X);
+  mem_write(0x80BF, 0x1D);
+  mem_write(0x80C0, ASL_ABSOLUTE);
+  mem_write(0x80C1, 0x00);
+  mem_write(0x80C2, 0x90);
+  mem_write(0x80C3, ASL_ABSOLUTE_X);
+  mem_write(0x80C4, 0x01);
+  mem_write(0x80C5, 0x90);
+
+  // DEX/DEY
+  mem_write(0x80C6, DEX);
+  mem_write(0x80C7, DEY);
+
+  // Flag Clears
+  mem_write(0x80C8, CLD);
+  mem_write(0x80C9, CLI);
+  mem_write(0x80CA, CLV);
+
+  mem_write(0x80CB, NOP);
+  mem_write(0x80CC, NOP);
+  mem_write(0x80CD, BRK);
+
   mem_write(0x0020, 0xAA);
   mem_write(0x0021, 0xBB);
   mem_write(0x0022, 0xCC);
-  mem_write(0x0030, 0x01);
+  mem_write(0x0030, 0x01); // Indirect Pointer Low
+  mem_write(0x0031, 0x00); // Indirect Pointer High (Added for safety)
   mem_write(0x0033, 0x05);
 
   mem_write(0x9000, 0x11);
