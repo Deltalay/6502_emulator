@@ -46,10 +46,12 @@ typedef struct
   BYTE S;
   Status P;
 } CPU;
+
 BYTE mem_read(WORD address)
 {
   return memory[address];
 }
+
 void mem_write(WORD address, BYTE value)
 {
   memory[address] = value;
