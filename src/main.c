@@ -54,7 +54,7 @@ void mem_write(WORD address, BYTE value)
 {
   memory[address] = value;
 }
-void cpu_reset(CPU *cpu)
+void cpu_reset(CPU* cpu)
 {
   cpu->S = 0xFD;
   BYTE low = memory[0xFFFC];
@@ -171,13 +171,13 @@ void cpu_reset(CPU *cpu)
 #define ASL_ABSOLUTE_X 0x1E
 #define BIT_ZEROPAGE 0x24
 #define BIT_ABSOLUTE 0x2C
-void setZN(CPU *cpu, BYTE val)
+void setZN(CPU* cpu, BYTE val)
 {
   cpu->P.Z = (val == 0);
   cpu->P.N = (val & 0x80) != 0;
   cpu->P.U = 1;
 }
-void execute(CPU *cpu)
+void execute(CPU* cpu)
 {
   BYTE op_code = mem_read(cpu->PC++);
   switch (op_code)
@@ -1095,8 +1095,8 @@ int main()
   mem_write(0xFFFC, 0x00);
   mem_write(0xFFFD, 0x80);
   cpu_reset(&cpu);
-  printf("CPU reset complete. PC = 0x%04X, S = 0x%02X, U = %d, X = 0x%02X\n",
-         cpu.PC, cpu.S, cpu.P.U, cpu.X);
+  printf("CPU reset complete. PC = 0x%04X, S = 0x%02X, U = %d, X = 0x%02X\n", cpu.PC, cpu.S,
+         cpu.P.U, cpu.X);
 
   mem_write(0x8000, LDA_IMMEDIATE);
   mem_write(0x8001, 0x10);
@@ -1355,8 +1355,8 @@ int main()
   while (1)
   {
     execute(&cpu);
-    printf("A=%02X X=%02X Y=%02X Z=%d N=%d C=%d V=%d PC=%04X\n",
-           cpu.A, cpu.X, cpu.Y, cpu.P.Z, cpu.P.N, cpu.P.C, cpu.P.V, cpu.PC);
+    printf("A=%02X X=%02X Y=%02X Z=%d N=%d C=%d V=%d PC=%04X\n", cpu.A, cpu.X, cpu.Y, cpu.P.Z,
+           cpu.P.N, cpu.P.C, cpu.P.V, cpu.PC);
   }
   return 0;
 }
