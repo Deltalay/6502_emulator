@@ -26,6 +26,9 @@ typedef short SWORD;
 // Memory for 6502 (64KB)
 BYTE memory[1 * 64 * 1024];
 // Not a good idea but why not
+#ifndef CPU_CLOCK
+#define CPU_CLOCK 1 * 1000000
+#endif
 typedef struct
 {
   unsigned N : 1;
@@ -173,6 +176,12 @@ void cpu_reset(CPU* cpu)
 #define ASL_ABSOLUTE_X 0x1E
 #define BIT_ZEROPAGE 0x24
 #define BIT_ABSOLUTE 0x2C
+#define CPX_IMMEDIATE 0xE0
+#define CPX_ZEROPAGE 0xE4
+#define CPX_ABSOLUTE 0xEC
+#define CPY_IMMEDIATE 0xC0
+#define CPY_ZEROPAGE 0xC4
+#define CPY_ABSOLUTE 0xCC
 void setZN(CPU* cpu, BYTE val)
 {
   cpu->P.Z = (val == 0);
@@ -994,6 +1003,69 @@ void execute(CPU* cpu)
     cpu->P.V = (val & 0x40) != 0;
     break;
   }
+  case CPX_IMMEDIATE:
+  {
+    BYTE mem_val = mem_read(cpu->PC++);
+    BYTE val = cpu->X - mem_val;
+    cpu->P.C = (cpu->X >= mem_val);
+    cpu->P.Z = (0 == val);
+    cpu->P.N = (val & 0x80) != 0;
+    break;
+  }
+  case CPX_ZEROPAGE:
+  {
+    BYTE addr = mem_read(cpu->PC++);
+    BYTE mem_val = mem_read(addr);
+    BYTE val = cpu->X - mem_val;
+    cpu->P.C = (cpu->X >= mem_val);
+    cpu->P.Z = (0 == val);
+    cpu->P.N = (val & 0x80) != 0;
+    break;
+  }
+  case CPX_ABSOLUTE:
+  {
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = ((second_addr << 8) + first_addr) & 0xFFFF;
+    BYTE mem_val = mem_read(addr);
+    BYTE val = cpu->X - mem_val;
+    cpu->P.C = (cpu->X >= mem_val);
+    cpu->P.Z = (0 == val);
+    cpu->P.N = (val & 0x80) != 0;
+    break;
+  }
+  case CPY_IMMEDIATE:
+  {
+    BYTE mem_val = mem_read(cpu->PC++);
+    BYTE val = cpu->Y - mem_val;
+    cpu->P.C = (cpu->Y >= mem_val);
+    cpu->P.Z = (0 == val);
+    cpu->P.N = (val & 0x80) != 0;
+    break;
+  }
+  case CPY_ZEROPAGE:
+  {
+    BYTE addr = mem_read(cpu->PC++);
+    BYTE mem_val = mem_read(addr);
+    BYTE val = cpu->Y - mem_val;
+    cpu->P.C = (cpu->Y >= mem_val);
+    cpu->P.Z = (0 == val);
+    cpu->P.N = (val & 0x80) != 0;
+    break;
+  }
+  case CPY_ABSOLUTE:
+  {
+    BYTE first_addr = mem_read(cpu->PC++);
+    BYTE second_addr = mem_read(cpu->PC++);
+    WORD addr = ((second_addr << 8) + first_addr) & 0xFFFF;
+    BYTE mem_val = mem_read(addr);
+    BYTE val = cpu->Y - mem_val;
+    cpu->P.C = (cpu->Y >= mem_val);
+    cpu->P.Z = (0 == val);
+    cpu->P.N = (val & 0x80) != 0;
+    break;
+  }
+
   case DEX:
   {
     cpu->X = (cpu->X - 1) & 0xFF;
