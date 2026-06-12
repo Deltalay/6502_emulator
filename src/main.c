@@ -68,6 +68,17 @@ void cpu_reset(CPU* cpu)
   cpu->A = cpu->X = cpu->Y = 0;
   cpu->P.U = 1;
 }
+void stack_push(CPU* cpu, BYTE val)
+{
+  mem_write(0x0100 + cpu->S, val);
+  cpu->S--;
+}
+
+BYTE stack_pull(CPU* cpu)
+{
+  cpu->S++;
+  return mem_read(0x0100 + cpu->S);
+}
 // TODO: Implement more op_code.
 // Also we do not care about cycle right now.
 // TODO: ASL, BIT, EOR, ORA
@@ -182,12 +193,17 @@ void cpu_reset(CPU* cpu)
 #define CPY_IMMEDIATE 0xC0
 #define CPY_ZEROPAGE 0xC4
 #define CPY_ABSOLUTE 0xCC
+#define PHA 0x48
+#define PHP 0x08
+#define PLA 0x68
+#define PLP 0x28
 void setZN(CPU* cpu, BYTE val)
 {
   cpu->P.Z = (val == 0);
   cpu->P.N = (val & 0x80) != 0;
   cpu->P.U = 1;
 }
+
 void execute(CPU* cpu)
 {
   BYTE op_code = mem_read(cpu->PC++);
@@ -1065,7 +1081,42 @@ void execute(CPU* cpu)
     cpu->P.N = (val & 0x80) != 0;
     break;
   }
-
+  case PHA:
+  {
+    stack_push(cpu, cpu->A);
+    break;
+  }
+  case PHP:
+  {
+    BYTE status_data = 0;
+    status_data |= (cpu->P.C << 0);
+    status_data |= (cpu->P.Z << 1);
+    status_data |= (cpu->P.I << 2);
+    status_data |= (cpu->P.D << 3);
+    status_data |= (0b11 << 4);
+    status_data |= (cpu->P.V << 6);
+    status_data |= (cpu->P.N << 7);
+    stack_push(cpu, status_data);
+    break;
+  }
+  case PLA:
+  {
+    cpu->A = stack_pull(cpu);
+    setZN(cpu, cpu->A);
+    break;
+  }
+  case PLP:
+  {
+    BYTE status_data = stack_pull(cpu);
+    cpu->P.C = (status_data & 0x01) != 0;
+    cpu->P.Z = (status_data & 0x02) != 0;
+    cpu->P.I = (status_data & 0x04) != 0;
+    cpu->P.D = (status_data & 0x08) != 0;
+    // Bits 4 (B) and 5 (U) from the stack are ignored
+    cpu->P.V = (status_data & 0x40) != 0;
+    cpu->P.N = (status_data & 0x80) != 0;
+    break;
+  }
   case DEX:
   {
     cpu->X = (cpu->X - 1) & 0xFF;
