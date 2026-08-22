@@ -79,9 +79,6 @@ BYTE stack_pull(CPU* cpu)
   cpu->S++;
   return mem_read(0x0100 + cpu->S);
 }
-// TODO: Implement more op_code.
-// Also we do not care about cycle right now.
-// TODO: ASL, BIT, EOR, ORA
 #define LDA_IMMEDIATE 0xA9
 #define LDA_ZEROPAGE 0xA5
 #define LDA_ZEROPAGE_X 0xB5
@@ -197,6 +194,14 @@ BYTE stack_pull(CPU* cpu)
 #define PHP 0x08
 #define PLA 0x68
 #define PLP 0x28
+#define SBC_IMMEDIATE 0xE9
+#define SBC_ZEROPAGE_X 0xF5
+#define SBC_ZEROPAGE 0xE5
+#define SBC_ABSOLUTE 0xED
+#define SBC_ABSOLUTE_X 0xFD
+#define SBC_ABSOLUTE_Y 0xF9
+#define SBC_INDIRECT_X 0xE1
+#define SBC_INDIRECT_Y 0xF1
 void setZN(CPU* cpu, BYTE val)
 {
   cpu->P.Z = (val == 0);
@@ -1122,6 +1127,51 @@ void execute(CPU* cpu)
     cpu->X = (cpu->X - 1) & 0xFF;
     setZN(cpu, cpu->X);
     break;
+  }
+  case SBC_IMMEDIATE: {
+      BYTE mem_val = mem_read(cpu->PC++);
+      BYTE borrow = cpu->P.C ? 0 : 1;
+      BYTE result = cpu->A - mem_val - borrow;
+
+      unsigned int subtrahend = (unsigned int)mem_val + borrow;
+
+      cpu->P.C = ((unsigned int)cpu->A >= subtrahend);
+      cpu->P.Z = (result == 0);
+      cpu->P.N = (result & 0x80) != 0;
+      cpu->P.V = ((cpu->A ^ result) & (cpu->A ^ mem_val) & 0x80) != 0;
+
+      cpu->A = result;
+      break;
+  }
+  case SBC_ZEROPAGE: {
+      BYTE mem_val = mem_read(mem_read(cpu->PC++));
+      BYTE borrow = cpu->P.C ? 0 : 1;
+      BYTE result = cpu->A - mem_val - borrow;
+
+      unsigned int subtrahend = (unsigned int)mem_val + borrow;
+
+      cpu->P.C = ((unsigned int)cpu->A >= subtrahend);
+      cpu->P.Z = (result == 0);
+      cpu->P.N = (result & 0x80) != 0;
+      cpu->P.V = ((cpu->A ^ result) & (cpu->A ^ mem_val) & 0x80) != 0;
+
+      cpu->A = result;
+      break;
+  }
+  case SBC_ZEROPAGE_X: {
+      BYTE mem_val = mem_read((mem_read(cpu->PC++) + cpu->X) & 0xFF);
+      BYTE borrow = cpu->P.C ? 0 : 1;
+      BYTE result = cpu->A - mem_val - borrow;
+
+      unsigned int subtrahend = (unsigned int)mem_val + borrow;
+
+      cpu->P.C = ((unsigned int)cpu->A >= subtrahend);
+      cpu->P.Z = (result == 0);
+      cpu->P.N = (result & 0x80) != 0;
+      cpu->P.V = ((cpu->A ^ result) & (cpu->A ^ mem_val) & 0x80) != 0;
+
+      cpu->A = result;
+      break;
   }
   case DEY:
   {
